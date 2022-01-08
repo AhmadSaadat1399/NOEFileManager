@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace NOEFileManager.Application.Services.FileInfo
 
 {
-    public class FileAppService : ApplicationService
+    public class FileAppService : ApplicationService, IFileAppService
     {
         private readonly IRepository<SaveFiles, Guid> _fileRepository;
         public FileAppService(IRepository<SaveFiles, Guid> fileRepository)
@@ -36,20 +36,20 @@ namespace NOEFileManager.Application.Services.FileInfo
                     {
                         FileCreatedUtc = DateTime.UtcNow,
                         //FilePath = System.IO.Path.GetFullPath(UploadFile.FileName, fileExtention),
-                        // FileHidden = UploadFile.,
+                        FileHidden = true,
                         FileName = filename,
                         FileExtension = fileExtention,
                         FileContentType = UploadFile.ContentType,
                         FileType = Core.Domain.Entities.Enums.FileType.File,
                         // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
                         // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
-                        //  FileSize = UploadFile.
+                        FileSize = UploadFile.Length / 2048,
                         FileDescription = "UploadFile"
                     };
                     using (var target = new System.IO.MemoryStream())
                     {
                         UploadFile.CopyTo(target);
-                        //objFiles.FileSize = objFiles.FileHash.Length;
+                        
                         objFiles.FileHash = target.ToArray();
                     }
                     _fileRepository.Insert(objFiles);
@@ -66,22 +66,38 @@ namespace NOEFileManager.Application.Services.FileInfo
                 var GetFile = _fileRepository.FirstOrDefault(it => it.FileName == FileName);
                 if (GetFile == null)
                     throw new Exception("Not Found...");
-                // byte[] SelectedFile = GetFile.FileHash;
-                // var dataStream = new System.IO.MemoryStream(GetFile.FileHash);
-                // return File(dataStream, "application/octet-stream", GetFile.FileName);
-
-                // return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                // {
-                //     FileDownloadName = excelName
-                // };
+                byte[] ConvertFileToByte = GetFile.FileHash;
+                var ConvertByteToStream = new MemoryStream(GetFile.FileHash);
                 return GetFile;
             }
             catch (System.Exception)
             {
 
-                throw new Exception("");
+                throw new Exception("فایل مورد نظر شما در بانک اطلاعاتی یافت نشد");
             }
         }
+
+        public SaveFiles GetById(Guid id)
+
+        {
+            var FindById = _fileRepository.FirstOrDefault(it => it.Id == id);
+            if (FindById == null)
+            {
+                throw new Exception("Oops 404");
+            }
+            byte[] ConvertFileToByte = FindById.FileHash;
+            var ConvertByteToStream = new MemoryStream(FindById.FileHash);
+            return FindById;
+
+        }
+
+        public List<Guid> GetList(Guid id)
+        {
+            var GetList = _fileRepository.GetAllList(it => it.Id == id);
+
+            throw new NotImplementedException();
+        }
+
 
     }
 }
