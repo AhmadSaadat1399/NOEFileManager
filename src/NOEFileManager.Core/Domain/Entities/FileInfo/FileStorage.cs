@@ -4,9 +4,9 @@ using Abp.Domain.Entities;
 using NOEFileManager.Core.Domain.Entities.Enums;
 namespace NOEFileManager.Core.Domain.Entities.FileInfo
 {
-    public class SaveFiles : Entity<Guid>
+    public class FileStorage : Entity<Guid>
     {
-        public SaveFiles() { }
+        public FileStorage() { }
         public virtual DateTime FileCreatedUtc { get; set; }
         public virtual string FilePath { get; set; }
         public virtual bool FileHidden { get; set; }

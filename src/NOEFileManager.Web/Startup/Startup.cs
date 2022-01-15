@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Abp.Extensions;
+using NOEFileManager.Configuration;
 
 namespace NOEFileManager.Web.Startup
 {
@@ -27,6 +28,7 @@ namespace NOEFileManager.Web.Startup
         public Startup(IWebHostEnvironment env)
         {
             _hostingEnvironment = env;
+            _appConfiguration = AppConfigurations.Get(_hostingEnvironment.ContentRootPath, _hostingEnvironment.EnvironmentName);
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -48,23 +50,28 @@ namespace NOEFileManager.Web.Startup
                 options.DocInclusionPredicate((docName, description) => true);
             });
 
+            var x = _appConfiguration["App:CorsOrigins"]
+                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                                .Select(o => o.RemovePostFix("/"))
+                                .ToArray();
+
             // Configure CORS for angular2 UI
-            // services.AddCors(
-            //     options => options.AddPolicy(
-            //         _defaultCorsPolicyName,
-            //         builder => builder
-            //             .WithOrigins(
-            //                 // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
-            //                 _appConfiguration["App:CorsOrigins"]
-            //                     .Split(",", StringSplitOptions.RemoveEmptyEntries)
-            //                     .Select(o => o.RemovePostFix("/"))
-            //                     .ToArray()
-            //             )
-            //             .AllowAnyHeader()
-            //             .AllowAnyMethod()
-            //             .AllowCredentials()
-            //     )
-            // );
+            services.AddCors(
+                options => options.AddPolicy(
+                    _defaultCorsPolicyName,
+                    builder => builder
+                        .WithOrigins(
+                            // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
+                            _appConfiguration["App:CorsOrigins"]
+                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                                .Select(o => o.RemovePostFix("/"))
+                                .ToArray()
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                )
+            );
 
             //Configure Abp and Dependency Injection
             return services.AddAbp<NOEFileManagerWebModule>(options =>
@@ -93,7 +100,7 @@ namespace NOEFileManager.Web.Startup
             {
                 app.UseExceptionHandler("/Error");
             }
-            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
+
 
             app.UseStaticFiles();
             app.UseRouting();
@@ -104,6 +111,8 @@ namespace NOEFileManager.Web.Startup
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "AbpZeroTemplate API V1");
             }); //URL: /swagger 
+
+            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
 
             app.UseEndpoints(endpoints =>
             {

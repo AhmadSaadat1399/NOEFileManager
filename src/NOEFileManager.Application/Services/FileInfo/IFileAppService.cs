@@ -11,8 +11,8 @@ namespace NOEFileManager.Application.Services.FileInfo
     {
 
         void SaveFile(IFormFile input);
-        SaveFiles DownloadFile(string FileName);
-        SaveFiles GetById(Guid id);
+        FileStorage DownloadFile(string FileName);
+        FileStorage GetById(Guid id);
         List<Guid> GetList(Guid id);
 
     }

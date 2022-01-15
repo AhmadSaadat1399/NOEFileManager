@@ -10,29 +10,31 @@ using Microsoft.AspNetCore.Http;
 using NOEFileManager.Core.Domain.Entities.FileInfo;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 
 
 namespace NOEFileManager.Application.Services.FileInfo
 
 {
+    [EnableCors("TestConnectionPolicy")]
     public class FileAppService : ApplicationService, IFileAppService
     {
-        private readonly IRepository<SaveFiles, Guid> _fileRepository;
-        public FileAppService(IRepository<SaveFiles, Guid> fileRepository)
+        private readonly IRepository<FileStorage, Guid> _fileRepository;
+        public FileAppService(IRepository<FileStorage, Guid> fileRepository)
         {
             _fileRepository = fileRepository;
         }
-
+            
         public void SaveFile(IFormFile UploadFile)
         {
-            if (UploadFile != null)
+
             {
                 if (UploadFile.Length > 0)
                 {
                     var filename = System.IO.Path.GetFileName(UploadFile.FileName);
                     var fileExtention = System.IO.Path.GetExtension(filename);
-
-                    var objFiles = new SaveFiles()
+                    var FileSize = UploadFile.Length;
+                    var objFiles = new FileStorage()
                     {
                         FileCreatedUtc = DateTime.UtcNow,
                         //FilePath = System.IO.Path.GetFullPath(UploadFile.FileName, fileExtention),
@@ -43,22 +45,26 @@ namespace NOEFileManager.Application.Services.FileInfo
                         FileType = Core.Domain.Entities.Enums.FileType.File,
                         // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
                         // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
-                        FileSize = UploadFile.Length / 2048,
+                        FileSize = UploadFile.Length,
                         FileDescription = "UploadFile"
                     };
                     using (var target = new System.IO.MemoryStream())
                     {
                         UploadFile.CopyTo(target);
-                        
+
                         objFiles.FileHash = target.ToArray();
                     }
                     _fileRepository.Insert(objFiles);
 
                 }
+                else
+                {
+                    throw new Exception("Null");
+                }
             }
         }
 
-        public SaveFiles DownloadFile(string FileName)
+        public FileStorage DownloadFile(string FileName)
         {
             try
             {
@@ -77,7 +83,8 @@ namespace NOEFileManager.Application.Services.FileInfo
             }
         }
 
-        public SaveFiles GetById(Guid id)
+
+        public FileStorage GetById(Guid id)
 
         {
             var FindById = _fileRepository.FirstOrDefault(it => it.Id == id);
@@ -97,6 +104,7 @@ namespace NOEFileManager.Application.Services.FileInfo
 
             throw new NotImplementedException();
         }
+        //get list Generic class by:Ahmad Saadat
 
 
     }

@@ -24,7 +24,7 @@ namespace NOEFileManager.Web.Controllers
         [HttpGet]
         public ActionResult GetDownloadFile()
         {
-            var accessFile = _FileAppService.DownloadFile("Masoudi-DeyBalal.mp3");
+            var accessFile = _FileAppService.DownloadFile("5.JPG");
             return File(accessFile.FileHash, "application/octet-stream", accessFile.FileName);
 
         }
@@ -34,7 +34,6 @@ namespace NOEFileManager.Web.Controllers
             var accessFileId = _FileAppService.GetById(id);
             return File(accessFileId.FileHash, "application/octet-stream", accessFileId.FileName);
         }
-
 
     }
 }
