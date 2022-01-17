@@ -28,7 +28,7 @@ namespace NOEFileManager.Application.Services.FileInfo
         public void SaveFile(IFormFile UploadFile)
         {
 
-            {
+            
                 if (UploadFile.Length > 0)
                 {
                     var filename = System.IO.Path.GetFileName(UploadFile.FileName);
@@ -61,7 +61,7 @@ namespace NOEFileManager.Application.Services.FileInfo
                 {
                     throw new Exception("Null");
                 }
-            }
+            
         }
 
         public FileStorage DownloadFile(string FileName)
