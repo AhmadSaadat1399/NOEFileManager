@@ -27,6 +27,7 @@ namespace NOEFileManager.EntityFrameworkCore
             modelBuilder.Entity<FileStorage>().Property(it => it.FileSize);
             modelBuilder.Entity<FileStorage>().Property(it => it.FileHash);
             modelBuilder.Entity<FileStorage>().Property(it => it.FileDescription).HasMaxLength(150);
+            modelBuilder.Entity<FileStorage>().Property(it => it.ReferenceId);
             modelBuilder.Entity<FileStorage>().ToTable("FileStorages");
         }
 

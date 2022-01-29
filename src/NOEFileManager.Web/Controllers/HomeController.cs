@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NOEFileManager.Application.Services.FileInfo;
 
@@ -24,7 +25,7 @@ namespace NOEFileManager.Web.Controllers
         [HttpGet]
         public ActionResult GetDownloadFile()
         {
-            var accessFile = _FileAppService.DownloadFile("5.JPG");
+            var accessFile = _FileAppService.DownloadFile("Screenshot (1) - Copy - Copy.png");
             return File(accessFile.FileHash, "application/octet-stream", accessFile.FileName);
 
         }

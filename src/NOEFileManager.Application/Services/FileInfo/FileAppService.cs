@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Cors;
 namespace NOEFileManager.Application.Services.FileInfo
 
 {
-    [EnableCors("TestConnectionPolicy")]
+    [EnableCors("_defaultCorsPolicyName")]
     public class FileAppService : ApplicationService, IFileAppService
     {
         private readonly IRepository<FileStorage, Guid> _fileRepository;
@@ -24,16 +24,60 @@ namespace NOEFileManager.Application.Services.FileInfo
         {
             _fileRepository = fileRepository;
         }
-            
-        public void SaveFile(IFormFile UploadFile)
+        public List<FileStorage> SaveFileByLists(List<IFormFile> UploadFile)
+        {
+            List<FileStorage> MyList = new List<FileStorage>();
+            foreach (var item in UploadFile)
+            {
+
+                if (item.Length > 0)
+                {
+                    if (item.Length > 0)
+                    {
+                        var filename = System.IO.Path.GetFileName(item.FileName);
+                        var fileExtention = System.IO.Path.GetExtension(filename);
+                        var FileSize = item.Length;
+                        var objFiles = new FileStorage()
+                        {
+                            FileCreatedUtc = DateTime.UtcNow,
+                            //FilePath = System.IO.Path.GetFullPath(UploadFile.FileName, fileExtention),
+                            FileHidden = true,
+                            FileName = filename,
+                            FileExtension = fileExtention,
+                            FileContentType = item.ContentType,
+                            FileType = Core.Domain.Entities.Enums.FileType.File,
+                            // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
+                            // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
+                            FileSize = item.Length,
+                            FileDescription = "UploadFile",
+                            ReferenceId = Guid.NewGuid()
+                        };
+                        using (var target = new System.IO.MemoryStream())
+                        {
+                            item.CopyTo(target);
+
+                            objFiles.FileHash = target.ToArray();
+                        }
+                        _fileRepository.Insert(objFiles);
+                        MyList.Add(objFiles);
+
+                    }
+                }
+
+            }
+            return MyList;
+        }
+        public void SaveFileList(List<IFormFile> UploadFile)
         {
 
-            
-                if (UploadFile.Length > 0)
+            // List<IFormFile> RangeList = new List<IFormFile>();
+            foreach (var item in UploadFile)
+            {
+                if (item.Length > 0)
                 {
-                    var filename = System.IO.Path.GetFileName(UploadFile.FileName);
+                    var filename = System.IO.Path.GetFileName(item.FileName);
                     var fileExtention = System.IO.Path.GetExtension(filename);
-                    var FileSize = UploadFile.Length;
+                    var FileSize = item.Length;
                     var objFiles = new FileStorage()
                     {
                         FileCreatedUtc = DateTime.UtcNow,
@@ -41,27 +85,100 @@ namespace NOEFileManager.Application.Services.FileInfo
                         FileHidden = true,
                         FileName = filename,
                         FileExtension = fileExtention,
-                        FileContentType = UploadFile.ContentType,
+                        FileContentType = item.ContentType,
                         FileType = Core.Domain.Entities.Enums.FileType.File,
                         // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
                         // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
-                        FileSize = UploadFile.Length,
-                        FileDescription = "UploadFile"
+                        FileSize = item.Length,
+                        FileDescription = "UploadFile",
+                        ReferenceId = Guid.NewGuid()
                     };
                     using (var target = new System.IO.MemoryStream())
                     {
-                        UploadFile.CopyTo(target);
+                        item.CopyTo(target);
 
                         objFiles.FileHash = target.ToArray();
                     }
                     _fileRepository.Insert(objFiles);
 
                 }
-                else
+
+            }
+        }
+
+        // public async Task<IActionResult> ListUploadFile(ICollection<IFormFile> FileList)
+        // {
+        //     foreach (var item in FileList)
+        //     {
+        //         if (item.Length > 0)
+        //         {
+        //             var filename = System.IO.Path.GetFileName(item.FileName);
+        //             var fileExtention = System.IO.Path.GetExtension(filename);
+        //             var FileSize = item.Length;
+        //             var objFiles = new FileStorage()
+        //             {
+        //                 FileCreatedUtc = DateTime.UtcNow,
+        //                 //FilePath = System.IO.Path.GetFullPath(UploadFile.FileName, fileExtention),
+        //                 FileHidden = true,
+        //                 FileName = filename,
+        //                 FileExtension = fileExtention,
+        //                 FileContentType = item.ContentType,
+        //                 FileType = Core.Domain.Entities.Enums.FileType.File,
+        //                 // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
+        //                 // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
+        //                 FileSize = item.Length,
+        //                 FileDescription = "UploadFile"
+        //             };
+        //             using (var target = new System.IO.MemoryStream())
+        //             {
+        //                 item.CopyTo(target);
+
+        //                 objFiles.FileHash = target.ToArray();
+        //             }
+        //             _fileRepository.Insert(objFiles);
+
+        //         }
+        //     }
+
+
+        // }
+        public void SaveFile(IFormFile UploadFile)
+        {
+
+
+            if (UploadFile.Length > 0)
+            {
+                var filename = System.IO.Path.GetFileName(UploadFile.FileName);
+                var fileExtention = System.IO.Path.GetExtension(filename);
+                var FileSize = UploadFile.Length;
+                var objFiles = new FileStorage()
                 {
-                    throw new Exception("Null");
+                    FileCreatedUtc = DateTime.UtcNow,
+                    //FilePath = System.IO.Path.GetFullPath(UploadFile.FileName, fileExtention),
+                    FileHidden = true,
+                    FileName = filename,
+                    FileExtension = fileExtention,
+                    FileContentType = UploadFile.ContentType,
+                    FileType = Core.Domain.Entities.Enums.FileType.File,
+                    // FileAllowAnanymousAccess = UploadFile.FileAllowAnanymousAccess,  
+                    // FileSize = new System.IO.FileInfo(int= UploadFile.FileSize),
+                    FileSize = UploadFile.Length,
+                    FileDescription = "UploadFile"
+                };
+                using (var target = new System.IO.MemoryStream())
+                {
+                    UploadFile.CopyTo(target);
+
+                    objFiles.FileHash = target.ToArray();
                 }
-            
+                _fileRepository.Insert(objFiles);
+
+            }
+            else
+            {
+                throw new Exception("Null");
+            }
+
         }
 
         public FileStorage DownloadFile(string FileName)
@@ -79,7 +196,7 @@ namespace NOEFileManager.Application.Services.FileInfo
             catch (System.Exception)
             {
 
-                throw new Exception("فایل مورد نظر شما در بانک اطلاعاتی یافت نشد");
+                throw new Exception("File in Database NotFound");
             }
         }
 
@@ -104,8 +221,8 @@ namespace NOEFileManager.Application.Services.FileInfo
 
             throw new NotImplementedException();
         }
+
         //get list Generic class by:Ahmad Saadat
-
-
     }
+
 }

@@ -18,6 +18,7 @@ namespace NOEFileManager.Core.Domain.Entities.FileInfo
         public virtual long FileSize { get; set; }
         public virtual Byte[] FileHash { get; set; }
         public virtual string FileDescription { get; set; }
+        public virtual Guid ReferenceId { get; set; }
 
     }
 }
